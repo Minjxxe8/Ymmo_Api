@@ -1,34 +1,35 @@
 package com.ymmo.ymmoapi.controller;
 
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import com.ymmo.ymmoapi.dao.UsersDao;
+import org.springframework.web.bind.annotation.*;
 
+@RestController
 public class UserController {
 
-    @GetMapping("/user")
+    private UsersDao usersDao;
+
+    @GetMapping("/users")
     String getAllUsers() {
         return "All users";
     }
 
-    @GetMapping("/user/{id}")
-    String getUserById(Long id) {
+    @GetMapping("/users/{id}")
+    String getUserById(@PathVariable Long id) {
         return "User with id: " + id;
     }
 
-    @PostMapping("/user")
+    @PostMapping("/users")
     String createUser() {
         return "Create a new user";
     }
 
-    @PatchMapping("/user/{id}")
-    String updateUser(Long id) {
+    @PatchMapping("/users/{id}")
+    String updateUser(@PathVariable Long id) {
         return "Update user with id: " + id;
     }
 
-    @DeleteMapping("/user/{id}")
-    String deleteUser(Long id) {
+    @DeleteMapping("/users/{id}")
+    String deleteUser(@PathVariable Long id) {
         return "Delete user with id: " + id;
     }
 }
