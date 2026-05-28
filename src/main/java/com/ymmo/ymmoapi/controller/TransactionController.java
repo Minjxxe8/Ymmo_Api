@@ -1,11 +1,9 @@
 package com.ymmo.ymmoapi.controller;
 
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 // TODO: Change the return data to DTO
+@RestController
 public class TransactionController {
 
     @GetMapping("/transactions")
@@ -14,7 +12,7 @@ public class TransactionController {
     }
 
     @GetMapping("/transactions/{id}")
-    String getTransactionById(Long id) {
+    String getTransactionById(@PathVariable Long id) {
         return "Transaction with id: " + id;
     }
 
@@ -24,12 +22,12 @@ public class TransactionController {
     }
 
     @PatchMapping("/transactions/{id}")
-    String updateTransaction(Long id) {
+    String updateTransaction(@PathVariable Long id) {
         return "Update transaction with id: " + id;
     }
 
     @DeleteMapping("/transactions/{id}")
-    String deleteTransaction(Long id) {
+    String deleteTransaction(@PathVariable Long id) {
         return "Delete transaction with id: " + id;
     }
 }
