@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.*;
 
 // TODO: Change the return data to DTO
 @RestController
+@RequestMapping("/api")
 public class PropertyController {
 
     @GetMapping("/properties")
