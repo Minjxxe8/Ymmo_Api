@@ -1,11 +1,10 @@
 package com.ymmo.ymmoapi.controller;
 
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 // TODO: Change the return data to DTO
+@RestController
+@RequestMapping("/api")
 public class PropertyController {
 
     @GetMapping("/properties")
@@ -14,7 +13,7 @@ public class PropertyController {
     }
 
     @GetMapping("/properties/{id}")
-    String getPropertyById(Long id) {
+    String getPropertyById(@PathVariable Long id) {
         return "Property with id: " + id;
     }
 
@@ -24,12 +23,12 @@ public class PropertyController {
     }
 
     @PatchMapping("/properties/{id}")
-    String updateProperty(Long id) {
+    String updateProperty(@PathVariable Long id) {
         return "Update property with id: " + id;
     }
 
     @DeleteMapping("/properties/{id}")
-    String deleteProperty(Long id) {
+    String deleteProperty(@PathVariable Long id) {
         return "Delete property with id: " + id;
     }
 }

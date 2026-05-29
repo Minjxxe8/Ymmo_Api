@@ -1,34 +1,69 @@
 package com.ymmo.ymmoapi.controller;
 
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import com.ymmo.ymmoapi.model.Users;
+import com.ymmo.ymmoapi.repository.UsersRepository;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
+@RestController
+@RequestMapping("/api")
 public class UserController {
 
-    @GetMapping("/user")
-    String getAllUsers() {
-        return "All users";
+    private final UsersRepository usersRepository;
+
+    public UserController(UsersRepository usersRepository) {
+        this.usersRepository = usersRepository;
     }
 
-    @GetMapping("/user/{id}")
-    String getUserById(Long id) {
-        return "User with id: " + id;
+    @GetMapping("/users")
+    public ResponseEntity<List<Users>> getAllUsers() {
+        return ResponseEntity.ok(usersRepository.findAll());
     }
 
-    @PostMapping("/user")
-    String createUser() {
-        return "Create a new user";
+    @GetMapping("/users/{id}")
+    public ResponseEntity<Users> getUserById(@PathVariable Long id) {
+        return usersRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    @PatchMapping("/user/{id}")
-    String updateUser(Long id) {
-        return "Update user with id: " + id;
+    @PostMapping("/users")
+    public ResponseEntity<Users> createUser(@RequestBody Users user) {
+        try {
+            return ResponseEntity.ok(usersRepository.save(user));
+        } catch (Exception e) {
+            return ResponseEntity.status(409).build();
+        }
     }
 
-    @DeleteMapping("/user/{id}")
-    String deleteUser(Long id) {
-        return "Delete user with id: " + id;
+    @PatchMapping("/users/{id}")
+    public ResponseEntity<Users> updateUser(@PathVariable Long id, @RequestBody Users user) {
+        try {
+            return usersRepository.findById(id)
+                    .map(existingUser -> {
+                        existingUser.setName(user.getName());
+                        existingUser.setEmail(user.getEmail());
+                        return ResponseEntity.ok(usersRepository.save(existingUser));
+                    })
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<Users> deleteUser(@PathVariable Long id) {
+        try {
+            return usersRepository.findById(id)
+                    .map(user -> {
+                        usersRepository.delete(user);
+                        return ResponseEntity.ok(user);
+                    })
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }
