@@ -29,6 +29,18 @@ public class Users {
     @Column(name = "created_at", updatable = false, insertable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Timestamp createdAt;
 
+    public Users(String email, String name, String surname, String password, String role) {
+        this.email = email;
+        this.name = name;
+        this.surname = surname;
+        this.password = password;
+        this.role = role;
+    }
+
+    public Users() {
+
+    }
+
     public int getId() {
         return id;
     }
