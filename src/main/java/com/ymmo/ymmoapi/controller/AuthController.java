@@ -20,8 +20,12 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> Login(@RequestBody UserAuthDto.LoginRequest loginRequest) {
-        return ResponseEntity.ok("");
+    public ResponseEntity<UserAuthDto.AuthResponse> Login(@RequestBody UserAuthDto.LoginRequest loginRequest) {
+        UserAuthDto.AuthResponse response = authService.login(loginRequest);
+        if (response == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/register")
