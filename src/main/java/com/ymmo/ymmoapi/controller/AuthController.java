@@ -43,8 +43,12 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<String> Logout(@RequestBody UserAuthDto.RefreshRequest refreshRequest) {
-        authService.logout(refreshRequest);
+    public ResponseEntity<String> Logout(@RequestBody UserAuthDto.LogoutAll logoutAll) {
+        if (logoutAll.revokeAll()) {
+            authService.logoutAll(new UserAuthDto.RefreshRequest(logoutAll.refreshToken()));
+        } else {
+            authService.logout(new UserAuthDto.RefreshRequest(logoutAll.refreshToken()));
+        }
         return ResponseEntity.ok("Logged out");
     }
 }
