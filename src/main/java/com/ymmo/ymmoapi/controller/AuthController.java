@@ -2,6 +2,7 @@ package com.ymmo.ymmoapi.controller;
 
 import com.ymmo.ymmoapi.dto.UserAuthDto;
 import com.ymmo.ymmoapi.dto.UserCreationDto;
+import com.ymmo.ymmoapi.exception.ResponseException;
 import com.ymmo.ymmoapi.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,7 +31,11 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<UserAuthDto.AuthResponse> Register(@RequestBody UserCreationDto userCreationDto) {
-        return ResponseEntity.ok(authService.register(userCreationDto));
+        try {
+            return ResponseEntity.ok(authService.register(userCreationDto));
+        } catch (ResponseException e) {
+            return ResponseEntity.status(e.getHttpCode()).build();
+        }
     }
 
     @PostMapping("/refresh")
