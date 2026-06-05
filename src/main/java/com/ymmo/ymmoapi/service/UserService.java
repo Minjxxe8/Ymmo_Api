@@ -5,9 +5,11 @@ import com.ymmo.ymmoapi.exception.ResourceNotFoundException;
 import com.ymmo.ymmoapi.model.Users;
 import com.ymmo.ymmoapi.repository.UsersRepository;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class UserService {
     private final UsersRepository usersRepository;
 
