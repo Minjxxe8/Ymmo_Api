@@ -2,6 +2,7 @@ package com.ymmo.ymmoapi.service;
 
 import com.ymmo.ymmoapi.dto.UserAuthDto;
 import com.ymmo.ymmoapi.dto.UserCreationDto;
+import com.ymmo.ymmoapi.exception.ResponseException;
 import com.ymmo.ymmoapi.model.UserSessions;
 import com.ymmo.ymmoapi.model.Users;
 import com.ymmo.ymmoapi.repository.UserSessionRepository;
@@ -9,7 +10,6 @@ import com.ymmo.ymmoapi.repository.UsersRepository;
 import com.ymmo.ymmoapi.utils.JWTUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +35,19 @@ public class AuthService {
 
     @Transactional
     public UserAuthDto.AuthResponse register(UserCreationDto req) {
+        if (req.getEmail() == null || req.getUnhashedPassword() == null) {
+            throw new ResponseException("Values cannot be null", 400);
+        }
+
+        if (!userService.isEmailCorrect(req.getEmail())) {
+            System.out.println("Incorrect Email");
+            throw new ResponseException("Incorrect Email", 400);
+        }
+
+        if (!userService.isPasswordCorrect(req.getUnhashedPassword())) {
+            throw new ResponseException("Password too short (at least 8 characters)", 400);
+        }
+
 
         if (usersRepository.existsUsersByEmail(req.getEmail())) {
             throw new IllegalArgumentException("Email already in use : " + req.getEmail());
