@@ -21,6 +21,8 @@ services:
     networks:
       - db_network
   ymmo-api:
+    env_file:
+      - .env
     build: .
     ports:
       - "8080:8080"
@@ -28,6 +30,10 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://ymmo-db:5432/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_REFRESH_SECRET_KEY: ${JWT_REFRESH_SECRET_KEY}
+      JWT_ACCESS_SECRET_KEY: ${JWT_ACCESS_SECRET_KEY}
+      JWT_REFRESH_EXPIRATION: ${JWT_REFRESH_EXPIRATION}
+      JWT_ACCESS_EXPIRATION: ${JWT_ACCESS_EXPIRATION}
     depends_on:
       ymmo-db:
         condition: service_healthy
