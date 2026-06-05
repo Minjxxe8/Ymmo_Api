@@ -1,11 +1,16 @@
 package com.ymmo.ymmoapi.model;
 
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.sql.Timestamp;
+import java.util.Collection;
+import java.util.List;
 
 @Entity(name = "users")
-public class Users {
+public class Users implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -18,7 +23,8 @@ public class Users {
     private String name;
 
     @Column(name = "surname", nullable = false)
-    private String surname;
+    // TODO: change its name in the data base
+    private String lastname;
 
     @Column(name = "password", nullable = false)
     private String password;
@@ -32,7 +38,7 @@ public class Users {
     public Users(String email, String name, String surname, String password, String role) {
         this.email = email;
         this.name = name;
-        this.surname = surname;
+        this.lastname = surname;
         this.password = password;
         this.role = role;
     }
@@ -57,24 +63,54 @@ public class Users {
         this.email = email;
     }
 
-    public String getName() {
-        return name;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
 
-    public String getSurname() {
-        return surname;
+    public String getLastname() {
+        return lastname;
     }
 
-    public void setSurname(String surname) {
-        this.surname = surname;
+    public void setLastname(String surname) {
+        this.lastname = surname;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role));
     }
 
     public String getPassword() {
         return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
+    }
+
+    public String getName() {
+        return name + " " + lastname;
     }
 
     public void setPassword(String password) {
