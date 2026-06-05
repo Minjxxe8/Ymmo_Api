@@ -12,6 +12,11 @@ public class UserAuthDto {
     ) {
     }
 
+    public record LogoutAll(
+            String refreshToken,
+            boolean revokeAll
+    ) {
+    }
 
     public record AuthResponse(
             String accessToken,
