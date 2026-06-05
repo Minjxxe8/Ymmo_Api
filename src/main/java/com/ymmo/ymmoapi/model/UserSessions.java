@@ -11,8 +11,12 @@ public class UserSessions {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "user_id")
-    private int userId;
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private Users user;
+
+    @Column(name = "revoked")
+    private boolean revoked;
 
     @Column(name = "token")
     private String token;
@@ -22,4 +26,44 @@ public class UserSessions {
 
     @Column(name = "expires_at")
     private Timestamp expiresAt;
+
+    public UserSessions() {
+
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public Users getUser() {
+        return user;
+    }
+
+    public boolean isRevoked() {
+        return revoked;
+    }
+
+    public void setRevoked(boolean revoked) {
+        this.revoked = revoked;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public Timestamp getExpiresAt() {
+        return expiresAt;
+    }
+
+    public UserSessions(Users user, boolean revoked, String token, Timestamp createdAt, Timestamp expiresAt) {
+        this.user = user;
+        this.revoked = revoked;
+        this.token = token;
+        this.createdAt = createdAt;
+        this.expiresAt = expiresAt;
+    }
 }
