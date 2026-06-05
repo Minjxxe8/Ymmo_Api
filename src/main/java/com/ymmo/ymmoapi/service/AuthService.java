@@ -95,8 +95,10 @@ public class AuthService {
     }
 
     @Transactional
-    public void logoutAll(User user) {
-        userSessionRepository.revokeAllByUser(user);
+    public void logoutAll(UserAuthDto.RefreshRequest refreshRequest) {
+        userSessionRepository.revokeAllByUser(
+                usersRepository.findByEmail(
+                        jwtUtils.extractUsernameFromRefreshToken(refreshRequest.refreshToken())));
     }
 
 
