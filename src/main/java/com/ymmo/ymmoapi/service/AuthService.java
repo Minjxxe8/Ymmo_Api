@@ -122,9 +122,10 @@ public class AuthService {
 
     @Transactional
     public void logoutAll(UserAuthDto.RefreshRequest refreshRequest) {
+        String email = jwtUtils.extractUsernameFromRefreshToken(refreshRequest.refreshToken());
         userSessionRepository.revokeAllByUser(
-                usersRepository.findByEmail(
-                        jwtUtils.extractUsernameFromRefreshToken(refreshRequest.refreshToken())));
+                usersRepository.findByEmail(email)
+                        .orElseThrow(() -> new UsernameNotFoundException("User not found : " + email)));
     }
 
 
