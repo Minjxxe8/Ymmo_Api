@@ -3,6 +3,7 @@ package com.ymmo.ymmoapi.controller;
 import com.ymmo.ymmoapi.dto.UserCreationDto;
 import com.ymmo.ymmoapi.model.Users;
 import com.ymmo.ymmoapi.repository.UsersRepository;
+import com.ymmo.ymmoapi.service.PasswordService;
 import com.ymmo.ymmoapi.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,32 +16,36 @@ public class UserController {
 
     private final UserService userService;
 
-    public UserController(UsersRepository usersRepository) {
-        this.userService = new UserService(usersRepository);
+    public UserController(UsersRepository usersRepository, PasswordService passwordService) {
+        this.userService = new UserService(usersRepository, passwordService);
     }
 
     @GetMapping("/users")
     public ResponseEntity<List<Users>> getAllUsers() {
-        return userService.getAllUsers();
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 
     @GetMapping("/users/{id}")
-    public ResponseEntity<Users> getUserById(@PathVariable Long id) {
-        return userService.getUserById(id);
+    public ResponseEntity<?> getUserById(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(userService.getUserById(id));
+        } catch (Exception e) {
+            return ResponseEntity.status(204).body(e.toString());
+        }
     }
 
     @PostMapping("/users")
     public ResponseEntity<Users> createUser(@RequestBody UserCreationDto user) {
-        return userService.createUser(user);
+        return ResponseEntity.ok(userService.createUser(user));
     }
 
     @PatchMapping("/users/{id}")
     public ResponseEntity<Users> updateUser(@PathVariable Long id, @RequestBody Users user) {
-        return userService.updateUser(id, user);
+        return ResponseEntity.ok(userService.updateUser(id, user));
     }
 
     @DeleteMapping("/users/{id}")
     public ResponseEntity<Users> deleteUser(@PathVariable Long id) {
-        return userService.deleteUser(id);
+        return ResponseEntity.ok(userService.deleteUser(id));
     }
 }
