@@ -9,7 +9,10 @@ import com.ymmo.ymmoapi.repository.UserSessionRepository;
 import com.ymmo.ymmoapi.repository.UsersRepository;
 import com.ymmo.ymmoapi.utils.JWTUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,8 +62,8 @@ public class AuthService {
             throw new IllegalArgumentException("Email already in use : " + req.getEmail());
         }
 
-        ResponseEntity<Users> response = userService.createUser(req);
-        return issueTokenPair(response.getBody());
+        Users response = userService.createUser(req);
+        return issueTokenPair(response);
     }
 
 
