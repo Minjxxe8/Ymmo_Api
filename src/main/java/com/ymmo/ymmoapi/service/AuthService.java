@@ -24,13 +24,19 @@ public class AuthService {
     private final UserService userService;
     private final JWTUtils jwtUtils;
     private final UserSessionRepository userSessionRepository;
+    private final AuthenticationManager authenticationManager;
 
     @Autowired
-    public AuthService(UsersRepository usersRepository, UserSessionRepository userSessionRepository, UserService userService, JWTUtils jwtUtils) {
+    public AuthService(UsersRepository usersRepository,
+                       UserSessionRepository userSessionRepository,
+                       UserService userService,
+                       JWTUtils jwtUtils,
+                       AuthenticationManager authenticationManager) {
         this.usersRepository = usersRepository;
         this.userService = userService;
         this.userSessionRepository = userSessionRepository;
         this.jwtUtils = jwtUtils;
+        this.authenticationManager = authenticationManager;
     }
 
     @Transactional
@@ -60,14 +66,18 @@ public class AuthService {
 
     @Transactional
     public UserAuthDto.AuthResponse login(UserAuthDto.LoginRequest req) {
-        if (usersRepository.existsUsersByEmail(req.email())) {
-            PasswordService passwordService = new PasswordService();
-            Users user = usersRepository.findByEmail(req.email());
-            if (passwordService.verifyPassword(req.password(), user.getPassword())) {
-                return issueTokenPair(user);
-            }
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(req.email(), req.password())
+            );
+        } catch (BadCredentialsException e) {
+            throw new ResponseException("Wrong credentials", 401);
         }
-        return null;
+
+        Users user = usersRepository.findByEmail(req.email())
+                .orElseThrow(() -> new ResponseException("User not found", 404));
+
+        return issueTokenPair(user);
     }
 
 
