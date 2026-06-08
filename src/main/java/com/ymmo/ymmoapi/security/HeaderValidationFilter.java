@@ -8,11 +8,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jspecify.annotations.NonNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -27,8 +25,10 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
     UsersRepository usersRepository;
 
     private static final List<String> PUBLIC_ROUTES = List.of(
+            "/api/auth/register",
             "/api/auth/login",
-            "/api/auth/register"
+            "/api/auth/refresh",
+            "/"
     );
 
     public HeaderValidationFilter(JWTUtils jwtUtils, UsersRepository usersRepository) {
@@ -42,22 +42,15 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             try {
                 String jwt = authHeader.substring(7);
                 String email = jwtUtils.extractUsernameFromAccessToken(jwt);
-                System.out.println("header : " + authHeader);
-                System.out.println("jwt : " + jwt);
-
-                System.out.println("Email : " + email);
-                System.out.println("Security context holder : " + SecurityContextHolder.getContext().getAuthentication());
                 if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     Users user = usersRepository.findByEmail(email)
                             .orElseThrow(() -> new UsernameNotFoundException("User not found : " + email));
-
-
                     System.out.println("Is token valid ? " + jwtUtils.validateAccessToken(jwt, user));
                     if (jwtUtils.validateAccessToken(jwt, user)) {
                         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
