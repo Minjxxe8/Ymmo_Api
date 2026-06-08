@@ -25,7 +25,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfiguration {
     private static final String[] PUBLIC_ROUTES = {
             "/api/auth/login",
-            "/api/auth/register"
+            "/api/auth/register",
+            "/api/auth/refresh",
+            "/"
     };
 
     private final UsersRepository usersRepository;
