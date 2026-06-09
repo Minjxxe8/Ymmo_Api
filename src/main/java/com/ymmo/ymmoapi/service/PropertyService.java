@@ -57,7 +57,7 @@ public class PropertyService {
         }
     }
 
-    public Properties updateProperty(int id, Properties property) throws ResourceNotFoundException {
+    public Properties updateProperty(int id, PropertyCreationDto property) throws ResourceNotFoundException {
         return propertiesRepository.findById(id).map(existingProperty ->
         {
             if (property.getName() != null) {
@@ -87,8 +87,8 @@ public class PropertyService {
             if (property.getArea() != null) {
                 existingProperty.setArea(property.getArea());
             }
-            if (property.isOnSale() != null) {
-                existingProperty.setOnSale(property.isOnSale());
+            if (property.getOnSale() != null) {
+                existingProperty.setOnSale(property.getOnSale());
             }
             return propertiesRepository.save(existingProperty);
         }).orElseThrow(() -> new ResourceNotFoundException("Property not found"));

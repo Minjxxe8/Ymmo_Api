@@ -2,7 +2,6 @@ package com.ymmo.ymmoapi.controller;
 
 import com.ymmo.ymmoapi.dto.PropertyCreationDto;
 import com.ymmo.ymmoapi.exception.ResponseException;
-import com.ymmo.ymmoapi.model.Properties;
 import com.ymmo.ymmoapi.service.PropertyService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -49,7 +48,7 @@ public class PropertyController {
 
     @PatchMapping("/properties/{id}")
     @PreAuthorize("hasRole('admin') or hasRole('agent')")
-    public ResponseEntity<?> updateProperty(@PathVariable int id, @RequestBody Properties property) {
+    public ResponseEntity<?> updateProperty(@PathVariable int id, @RequestBody PropertyCreationDto property) {
         try {
             return ResponseEntity.ok(propertyService.updateProperty(id, property));
         } catch (ResponseException e) {
