@@ -12,14 +12,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
 
-
-@Component
 public class HeaderValidationFilter extends OncePerRequestFilter {
     JWTUtils jwtUtils;
     UsersRepository usersRepository;
@@ -53,17 +50,22 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
                             .orElseThrow(() -> new UsernameNotFoundException("User not found : " + email));
                     System.out.println("Is token valid ? " + jwtUtils.validateAccessToken(jwt, user));
                     if (jwtUtils.validateAccessToken(jwt, user)) {
+                        System.out.println("Authorities : " + user.getAuthorities());
                         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
                         authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                        var context = SecurityContextHolder.createEmptyContext();
+                        context.setAuthentication(authenticationToken);
+                        SecurityContextHolder.setContext(context);
                     }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+                System.out.println("Forbidden on Header Validation Exception");
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
         } else {
+            System.out.println("Forbidden on Header Validation");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
