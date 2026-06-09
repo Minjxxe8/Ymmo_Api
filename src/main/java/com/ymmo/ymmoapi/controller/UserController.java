@@ -1,6 +1,7 @@
 package com.ymmo.ymmoapi.controller;
 
 import com.ymmo.ymmoapi.dto.UserCreationDto;
+import com.ymmo.ymmoapi.exception.ResponseException;
 import com.ymmo.ymmoapi.model.Users;
 import com.ymmo.ymmoapi.repository.UsersRepository;
 import com.ymmo.ymmoapi.service.PasswordService;
@@ -38,20 +39,32 @@ public class UserController {
 
     @PostMapping("/users")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<Users> createUser(@RequestBody UserCreationDto user) {
-        return ResponseEntity.ok(userService.createUser(user));
+    public ResponseEntity<?> createUser(@RequestBody UserCreationDto user) {
+        try {
+            return ResponseEntity.ok(userService.createUser(user));
+        } catch (ResponseException e) {
+            return ResponseEntity.status(e.getHttpCode()).body(e.getMessage());
+        }
     }
 
 
     @PatchMapping("/users/{id}")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<Users> updateUser(@PathVariable Long id, @RequestBody Users user) {
-        return ResponseEntity.ok(userService.updateUser(id, user));
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody Users user) {
+        try {
+            return ResponseEntity.ok(userService.updateUser(id, user));
+        } catch (ResponseException e) {
+            return ResponseEntity.status(e.getHttpCode()).body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/users/{id}")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<Users> deleteUser(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.deleteUser(id));
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(userService.deleteUser(id));
+        } catch (ResponseException e) {
+            return ResponseEntity.status(e.getHttpCode()).body(e.getMessage());
+        }
     }
 }
