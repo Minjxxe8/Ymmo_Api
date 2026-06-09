@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin
 public class AuthController {
 
     private final AuthService authService;
@@ -39,11 +40,11 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<UserAuthDto.AuthResponse> Refresh(@RequestBody UserAuthDto.RefreshRequest refreshRequest) {
+    public ResponseEntity<?> Refresh(@RequestBody UserAuthDto.RefreshRequest refreshRequest) {
         try {
             return ResponseEntity.ok(authService.refresh(refreshRequest));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
 

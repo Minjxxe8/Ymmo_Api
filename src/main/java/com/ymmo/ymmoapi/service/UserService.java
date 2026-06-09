@@ -13,63 +13,49 @@ import java.util.regex.Pattern;
 @Service
 public class UserService {
     private final UsersRepository usersRepository;
+    private final PasswordService passwordService;
 
-    public UserService(UsersRepository usersRepository) {
+    public UserService(UsersRepository usersRepository, PasswordService passwordService) {
         this.usersRepository = usersRepository;
+        this.passwordService = passwordService;
     }
 
-    public ResponseEntity<List<Users>> getAllUsers() {
-        return ResponseEntity.ok(usersRepository.findAll());
+    public List<Users> getAllUsers() {
+        return usersRepository.findAll();
     }
 
-    public ResponseEntity<Users> getUserById(Long id) {
+    public Users getUserById(Long id) {
         return usersRepository.findById(id)
                 .map(ResponseEntity::ok)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id)).getBody();
     }
 
-    public ResponseEntity<Users> createUser(UserCreationDto user) {
-        try {
-            if (!isEmailCorrect(user.getEmail()) || !isPasswordCorrect(user.getUnhashedPassword())) {
-                return ResponseEntity.badRequest().build();
-            }
-            PasswordService passwordService = new PasswordService();
-            return ResponseEntity.ok(usersRepository.save(new Users(
-                    user.getEmail(),
-                    user.getName(),
-                    user.getSurname(),
-                    passwordService.hashPassword(user.getUnhashedPassword()),
-                    "user")));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
+    public Users createUser(UserCreationDto user) {
+        return usersRepository.save(new Users(
+                user.getEmail(),
+                user.getName(),
+                user.getSurname(),
+                passwordService.hashPassword(user.getUnhashedPassword()),
+                "user"));
     }
 
-    public ResponseEntity<Users> updateUser(Long id, Users user) {
-        try {
-            return usersRepository.findById(id)
-                    .map(existingUser -> {
-                        existingUser.setName(user.getName());
-                        existingUser.setEmail(user.getEmail());
-                        return ResponseEntity.ok(usersRepository.save(existingUser));
-                    })
-                    .orElse(ResponseEntity.noContent().build());
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
+    public Users updateUser(Long id, Users user) {
+        return usersRepository.findById(id)
+                .map(existingUser -> {
+                    existingUser.setName(user.getName());
+                    existingUser.setEmail(user.getEmail());
+                    return ResponseEntity.ok(usersRepository.save(existingUser));
+                })
+                .orElse(ResponseEntity.noContent().build()).getBody();
     }
 
-    public ResponseEntity<Users> deleteUser(Long id) {
-        try {
-            return usersRepository.findById(id)
-                    .map(user -> {
-                        usersRepository.delete(user);
-                        return ResponseEntity.ok(user);
-                    })
-                    .orElse(ResponseEntity.noContent().build());
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
+    public Users deleteUser(Long id) {
+        return usersRepository.findById(id)
+                .map(user -> {
+                    usersRepository.delete(user);
+                    return ResponseEntity.ok(user);
+                })
+                .orElse(ResponseEntity.noContent().build()).getBody();
     }
 
     public boolean isEmailCorrect(String email) {
