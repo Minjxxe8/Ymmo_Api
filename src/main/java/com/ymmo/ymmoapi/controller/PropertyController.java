@@ -20,19 +20,19 @@ public class PropertyController {
     }
 
     @PostMapping("/properties")
-    @PreAuthorize("hasRole('admin' || 'agent')")
+    @PreAuthorize("hasRole('admin') or hasRole('agent')")
     String createProperty() {
         return "Create a new property";
     }
 
     @PatchMapping("/properties/{id}")
-    @PreAuthorize("hasRole('admin' || 'agent')")
+    @PreAuthorize("hasRole('admin') or hasRole('agent')")
     String updateProperty(@PathVariable Long id) {
         return "Update property with id: " + id;
     }
 
     @DeleteMapping("/properties/{id}")
-    @PreAuthorize("hasRole('admin' || 'agent')")
+    @PreAuthorize("hasRole('admin') or hasRole('agent')")
     String deleteProperty(@PathVariable Long id) {
         return "Delete property with id: " + id;
     }
