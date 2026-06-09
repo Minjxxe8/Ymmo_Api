@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 // TODO: Change the return data to DTO
 @RestController
 @RequestMapping("/api")
+@CrossOrigin
 public class TransactionController {
 
     @GetMapping("/transactions")
