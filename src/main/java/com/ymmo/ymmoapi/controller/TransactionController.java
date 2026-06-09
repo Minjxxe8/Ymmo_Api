@@ -1,5 +1,6 @@
 package com.ymmo.ymmoapi.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 // TODO: Change the return data to DTO
@@ -29,6 +30,7 @@ public class TransactionController {
     }
 
     @DeleteMapping("/transactions/{id}")
+    @PreAuthorize("hasRole('admin' || 'agent')")
     String deleteTransaction(@PathVariable Long id) {
         return "Delete transaction with id: " + id;
     }
