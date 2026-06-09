@@ -25,6 +25,7 @@ public class TransactionController {
     }
 
     @PatchMapping("/transactions/{id}")
+    @PreAuthorize("hasRole('admin' || 'agent')")
     String updateTransaction(@PathVariable Long id) {
         return "Update transaction with id: " + id;
     }
