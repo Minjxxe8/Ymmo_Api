@@ -4,8 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.NO_CONTENT)
-public class ResourceNotFoundException extends RuntimeException {
+public class ResourceNotFoundException extends ResponseException {
     public ResourceNotFoundException(String message) {
-        super(message);
+        super(message, 204);
     }
 }
