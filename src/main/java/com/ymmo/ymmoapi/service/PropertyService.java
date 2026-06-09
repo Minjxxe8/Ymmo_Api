@@ -84,6 +84,9 @@ public class PropertyService {
             if (property.getCity() != null) {
                 existingProperty.setCity(property.getCity());
             }
+            if (property.getArea() != null) {
+                existingProperty.setArea(property.getArea());
+            }
             if (property.isOnSale() != null) {
                 existingProperty.setOnSale(property.isOnSale());
             }
