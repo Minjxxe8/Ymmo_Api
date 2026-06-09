@@ -15,16 +15,16 @@ public class Properties {
     private String name;
 
     @Column(name = "type_id")
-    private int typeId;
+    private Integer typeId;
 
     @Column(name = "price")
-    private double price;
+    private Double price;
 
     @Column(name = "surface_area")
-    private double surfaceArea;
+    private Double surfaceArea;
 
     @Column(name = "room_count")
-    private int roomCount;
+    private Integer roomCount;
 
     @Column(name = "diagnostic")
     private String diagnostic;
@@ -35,9 +35,117 @@ public class Properties {
     @Column(name = "city")
     private String city;
 
-    @Column(name = "on_sale")
-    private boolean onSale;
+    @Column(name = "area")
+    private String area;
 
-    @Column(name = "created_at")
+    @Column(name = "on_sale")
+    private Boolean onSale;
+
+    @Column(name = "created_at", updatable = false, insertable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Timestamp createdAt;
+
+    public Properties() {
+
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Integer getTypeId() {
+        return typeId;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public Double getSurfaceArea() {
+        return surfaceArea;
+    }
+
+    public Integer getRoomCount() {
+        return roomCount;
+    }
+
+    public String getDiagnostic() {
+        return diagnostic;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public String getArea() {
+        return area;
+    }
+
+    public Boolean isOnSale() {
+        return onSale;
+    }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setTypeId(Integer typeId) {
+        this.typeId = typeId;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
+    }
+
+    public void setSurfaceArea(Double surfaceArea) {
+        this.surfaceArea = surfaceArea;
+    }
+
+    public void setRoomCount(Integer roomCount) {
+        this.roomCount = roomCount;
+    }
+
+    public void setDiagnostic(String diagnostic) {
+        this.diagnostic = diagnostic;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public void setArea(String area) {
+        this.area = area;
+    }
+
+    public void setOnSale(Boolean onSale) {
+        this.onSale = onSale;
+    }
+
+    public Properties(String name, Integer typeId, Double price, Double surfaceArea, Integer roomCount, String diagnostic, String country, String city, String area, Boolean onSale) {
+        this.name = name;
+        this.typeId = typeId;
+        this.price = price;
+        this.surfaceArea = surfaceArea;
+        this.roomCount = roomCount;
+        this.diagnostic = diagnostic;
+        this.country = country;
+        this.city = city;
+        this.area = area;
+        this.onSale = onSale;
+    }
 }
