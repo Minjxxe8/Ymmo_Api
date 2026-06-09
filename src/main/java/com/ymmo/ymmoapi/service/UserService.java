@@ -2,6 +2,7 @@ package com.ymmo.ymmoapi.service;
 
 import com.ymmo.ymmoapi.dto.UserCreationDto;
 import com.ymmo.ymmoapi.exception.ResourceNotFoundException;
+import com.ymmo.ymmoapi.exception.ResponseException;
 import com.ymmo.ymmoapi.model.Users;
 import com.ymmo.ymmoapi.repository.UsersRepository;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +31,10 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id)).getBody();
     }
 
-    public Users createUser(UserCreationDto user) {
+    public Users createUser(UserCreationDto user) throws ResponseException {
+        if (usersRepository.existsUsersByEmail(user.getEmail())) {
+            throw new ResponseException("User already exists", 409);
+        }
         return usersRepository.save(new Users(
                 user.getEmail(),
                 user.getName(),
@@ -39,7 +43,10 @@ public class UserService {
                 "user"));
     }
 
-    public Users updateUser(Long id, Users user) {
+    public Users updateUser(Long id, Users user) throws ResponseException {
+        if (!usersRepository.existsUsersById(Math.toIntExact(id))) {
+            throw new ResponseException("User not found", 204);
+        }
         return usersRepository.findById(id)
                 .map(existingUser -> {
                     existingUser.setName(user.getName());
@@ -49,7 +56,10 @@ public class UserService {
                 .orElse(ResponseEntity.noContent().build()).getBody();
     }
 
-    public Users deleteUser(Long id) {
+    public Users deleteUser(Long id) throws ResponseException {
+        if (!usersRepository.existsUsersById(Math.toIntExact(id))) {
+            throw new ResponseException("User not found", 204);
+        }
         return usersRepository.findById(id)
                 .map(user -> {
                     usersRepository.delete(user);
