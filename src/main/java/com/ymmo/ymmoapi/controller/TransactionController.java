@@ -25,13 +25,13 @@ public class TransactionController {
     }
 
     @PatchMapping("/transactions/{id}")
-    @PreAuthorize("hasRole('admin' || 'agent')")
+    @PreAuthorize("hasRole('admin') or hasRole('agent')")
     String updateTransaction(@PathVariable Long id) {
         return "Update transaction with id: " + id;
     }
 
     @DeleteMapping("/transactions/{id}")
-    @PreAuthorize("hasRole('admin' || 'agent')")
+    @PreAuthorize("hasRole('admin') or hasRole('agent')")
     String deleteTransaction(@PathVariable Long id) {
         return "Delete transaction with id: " + id;
     }
