@@ -1,7 +1,5 @@
 package com.ymmo.ymmoapi.model;
 
-import java.sql.Timestamp;
-
 public class PropertiesBuilder {
 
     private String name;
