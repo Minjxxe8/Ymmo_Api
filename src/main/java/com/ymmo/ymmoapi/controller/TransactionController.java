@@ -1,6 +1,10 @@
 package com.ymmo.ymmoapi.controller;
 
-import org.springframework.security.access.prepost.PreAuthorize;
+import com.ymmo.ymmoapi.dto.TransactionCreationDto;
+import com.ymmo.ymmoapi.exception.ResourceNotFoundException;
+import com.ymmo.ymmoapi.exception.ResponseException;
+import com.ymmo.ymmoapi.service.TransactionService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 // TODO: Change the return data to DTO
@@ -8,31 +12,45 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api")
 @CrossOrigin
 public class TransactionController {
+    private final TransactionService transactionService;
+
+    public TransactionController(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
 
     @GetMapping("/transactions")
-    String getAllTransactions() {
-        return "All transactions";
+    public ResponseEntity<?> getAllTransactions() {
+        try {
+            return ResponseEntity.ok(transactionService.getAllTransactions());
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(e.getHttpCode()).body(e.getMessage());
+        }
     }
 
     @GetMapping("/transactions/{id}")
-    String getTransactionById(@PathVariable Long id) {
-        return "Transaction with id: " + id;
+    public ResponseEntity<?> getTransactionById(@PathVariable int id) {
+        try {
+            return ResponseEntity.ok(transactionService.getTransactionById(id));
+        } catch (ResponseException e) {
+            return ResponseEntity.status(e.getHttpCode()).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/transactions/user/{userId}")
+    public ResponseEntity<?> getTransactionsByUserId(@PathVariable int userId) {
+        try {
+            return ResponseEntity.ok(transactionService.getTransactionsByUserId(userId));
+        } catch (ResponseException e) {
+            return ResponseEntity.status(e.getHttpCode()).body(e.getMessage());
+        }
     }
 
     @PostMapping("/transactions")
-    String createTransaction() {
-        return "Create a new transaction";
-    }
-
-    @PatchMapping("/transactions/{id}")
-    @PreAuthorize("hasRole('admin') or hasRole('agent')")
-    String updateTransaction(@PathVariable Long id) {
-        return "Update transaction with id: " + id;
-    }
-
-    @DeleteMapping("/transactions/{id}")
-    @PreAuthorize("hasRole('admin') or hasRole('agent')")
-    String deleteTransaction(@PathVariable Long id) {
-        return "Delete transaction with id: " + id;
+    public ResponseEntity<?> createTransaction(@RequestBody TransactionCreationDto transactionCreationDto) {
+        try {
+            return ResponseEntity.ok(transactionService.createTransaction(transactionCreationDto));
+        } catch (ResponseException e) {
+            return ResponseEntity.status(e.getHttpCode()).body(e.getMessage());
+        }
     }
 }
