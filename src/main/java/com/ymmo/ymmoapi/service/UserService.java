@@ -25,7 +25,7 @@ public class UserService {
         return usersRepository.findAll();
     }
 
-    public Users getUserById(Long id) {
+    public Users getUserById(Long id) throws ResponseException {
         return usersRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id)).getBody();
