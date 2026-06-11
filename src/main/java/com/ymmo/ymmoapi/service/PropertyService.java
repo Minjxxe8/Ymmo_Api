@@ -13,7 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Component
@@ -113,4 +114,35 @@ public class PropertyService {
         return propertyTypes;
     }
 
+    public Properties changePropertyStatus(int id, boolean newStatus) throws ResourceNotFoundException {
+        return propertiesRepository.findById(id).map(property -> {
+            property.setOnSale(newStatus);
+            return propertiesRepository.save(property);
+        }).orElseThrow(() -> new ResourceNotFoundException("No property have been found with the id " + id));
+    }
+
+    public Set<Properties> search(String query, Integer minPrice, Integer maxPrice) {
+        Set<Properties> result = new HashSet<>();
+
+        propertiesRepository.searchAllFields(query).ifPresent(result::addAll);
+
+        if (minPrice != null || maxPrice != null) {
+            result = result.stream()
+                    .filter(Objects::nonNull)
+                    .filter(property -> {
+                        if (maxPrice == null) {
+                            return property.getPrice() > minPrice;
+                        }
+                        if (minPrice == null) {
+                            return property.getPrice() < maxPrice;
+                        }
+                        return property.getPrice() < maxPrice && property.getPrice() > minPrice;
+                    }).collect(Collectors.toSet());
+        }
+
+        if (result.isEmpty()) {
+            throw new ResourceNotFoundException("No properties have been found");
+        }
+        return result;
+    }
 }
