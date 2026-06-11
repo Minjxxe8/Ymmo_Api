@@ -5,7 +5,9 @@ import com.ymmo.ymmoapi.exception.ResourceNotFoundException;
 import com.ymmo.ymmoapi.exception.ResponseException;
 import com.ymmo.ymmoapi.model.Properties;
 import com.ymmo.ymmoapi.model.PropertiesBuilder;
+import com.ymmo.ymmoapi.model.PropertyTypes;
 import com.ymmo.ymmoapi.repository.PropertiesRepository;
+import com.ymmo.ymmoapi.repository.PropertyTypesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -17,10 +19,12 @@ import java.util.List;
 @Component
 public class PropertyService {
     private final PropertiesRepository propertiesRepository;
+    private final PropertyTypesRepository propertyTypesRepository;
 
     @Autowired
-    public PropertyService(PropertiesRepository propertiesRepository) {
+    public PropertyService(PropertiesRepository propertiesRepository, PropertyTypesRepository propertyTypesRepository) {
         this.propertiesRepository = propertiesRepository;
+        this.propertyTypesRepository = propertyTypesRepository;
     }
 
     public List<Properties> getAllProperties() throws ResourceNotFoundException {
@@ -100,4 +104,13 @@ public class PropertyService {
             return property;
         }).orElseThrow(() -> new ResourceNotFoundException("Property not found"));
     }
+
+    public List<PropertyTypes> getAllPropertiesType() throws ResourceNotFoundException {
+        List<PropertyTypes> propertyTypes = propertyTypesRepository.findAll();
+        if (propertyTypes.isEmpty()) {
+            throw new ResourceNotFoundException("No property types have been found");
+        }
+        return propertyTypes;
+    }
+
 }
