@@ -124,7 +124,7 @@ public class PropertyService {
     public Set<Properties> search(String query, Integer minPrice, Integer maxPrice) {
         Set<Properties> result = new HashSet<>();
 
-        propertiesRepository.searchAllFields(query).ifPresent(result::addAll);
+        propertiesRepository.searchAllFields(query.strip().toLowerCase()).ifPresent(result::addAll);
 
         if (minPrice != null || maxPrice != null) {
             result = result.stream()
