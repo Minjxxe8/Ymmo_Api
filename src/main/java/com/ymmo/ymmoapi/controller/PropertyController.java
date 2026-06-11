@@ -3,6 +3,7 @@ package com.ymmo.ymmoapi.controller;
 import com.ymmo.ymmoapi.dto.PropertyCreationDto;
 import com.ymmo.ymmoapi.exception.ResponseException;
 import com.ymmo.ymmoapi.service.PropertyService;
+import jakarta.annotation.Nullable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,24 @@ public class PropertyController {
     public ResponseEntity<?> getAllProperties() {
         try {
             return ResponseEntity.ok(propertyService.getAllProperties());
+        } catch (ResponseException e) {
+            return ResponseEntity.status(e.getHttpCode()).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/properties/search")
+    public ResponseEntity<?> searchProperties(@RequestParam String query, @Nullable @RequestParam Integer minPrice, @Nullable @RequestParam Integer maxPrice) {
+        try {
+            return ResponseEntity.ok(propertyService.search(query, minPrice, maxPrice));
+        } catch (ResponseException e) {
+            return ResponseEntity.status(e.getHttpCode()).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/properties/types")
+    public ResponseEntity<?> getAllPropertiesType() {
+        try {
+            return ResponseEntity.ok(propertyService.getAllPropertiesType());
         } catch (ResponseException e) {
             return ResponseEntity.status(e.getHttpCode()).body(e.getMessage());
         }
@@ -61,6 +80,16 @@ public class PropertyController {
     public ResponseEntity<?> deleteProperty(@PathVariable int id) {
         try {
             return ResponseEntity.ok(propertyService.deleteProperty(id));
+        } catch (ResponseException e) {
+            return ResponseEntity.status(e.getHttpCode()).body(e.getMessage());
+        }
+    }
+
+    @PatchMapping("properties/{id}/status")
+    @PreAuthorize("hasRole('admin') or hasRole('agent')")
+    public ResponseEntity<?> changePropertyStatus(@PathVariable int id, @RequestBody boolean newStatus) {
+        try {
+            return ResponseEntity.ok(propertyService.changePropertyStatus(id, newStatus));
         } catch (ResponseException e) {
             return ResponseEntity.status(e.getHttpCode()).body(e.getMessage());
         }

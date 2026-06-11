@@ -5,22 +5,27 @@ import com.ymmo.ymmoapi.exception.ResourceNotFoundException;
 import com.ymmo.ymmoapi.exception.ResponseException;
 import com.ymmo.ymmoapi.model.Properties;
 import com.ymmo.ymmoapi.model.PropertiesBuilder;
+import com.ymmo.ymmoapi.model.PropertyTypes;
 import com.ymmo.ymmoapi.repository.PropertiesRepository;
+import com.ymmo.ymmoapi.repository.PropertyTypesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Component
 public class PropertyService {
     private final PropertiesRepository propertiesRepository;
+    private final PropertyTypesRepository propertyTypesRepository;
 
     @Autowired
-    public PropertyService(PropertiesRepository propertiesRepository) {
+    public PropertyService(PropertiesRepository propertiesRepository, PropertyTypesRepository propertyTypesRepository) {
         this.propertiesRepository = propertiesRepository;
+        this.propertyTypesRepository = propertyTypesRepository;
     }
 
     public List<Properties> getAllProperties() throws ResourceNotFoundException {
@@ -99,5 +104,45 @@ public class PropertyService {
             propertiesRepository.delete(property);
             return property;
         }).orElseThrow(() -> new ResourceNotFoundException("Property not found"));
+    }
+
+    public List<PropertyTypes> getAllPropertiesType() throws ResourceNotFoundException {
+        List<PropertyTypes> propertyTypes = propertyTypesRepository.findAll();
+        if (propertyTypes.isEmpty()) {
+            throw new ResourceNotFoundException("No property types have been found");
+        }
+        return propertyTypes;
+    }
+
+    public Properties changePropertyStatus(int id, boolean newStatus) throws ResourceNotFoundException {
+        return propertiesRepository.findById(id).map(property -> {
+            property.setOnSale(newStatus);
+            return propertiesRepository.save(property);
+        }).orElseThrow(() -> new ResourceNotFoundException("No property have been found with the id " + id));
+    }
+
+    public Set<Properties> search(String query, Integer minPrice, Integer maxPrice) {
+        Set<Properties> result = new HashSet<>();
+
+        propertiesRepository.searchAllFields(query.strip().toLowerCase()).ifPresent(result::addAll);
+
+        if (minPrice != null || maxPrice != null) {
+            result = result.stream()
+                    .filter(Objects::nonNull)
+                    .filter(property -> {
+                        if (maxPrice == null) {
+                            return property.getPrice() > minPrice;
+                        }
+                        if (minPrice == null) {
+                            return property.getPrice() < maxPrice;
+                        }
+                        return property.getPrice() < maxPrice && property.getPrice() > minPrice;
+                    }).collect(Collectors.toSet());
+        }
+
+        if (result.isEmpty()) {
+            throw new ResourceNotFoundException("No properties have been found");
+        }
+        return result;
     }
 }
