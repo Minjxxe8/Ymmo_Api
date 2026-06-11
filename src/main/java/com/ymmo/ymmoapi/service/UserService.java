@@ -1,11 +1,13 @@
 package com.ymmo.ymmoapi.service;
 
+import com.ymmo.ymmoapi.dto.MyUserModificationDto;
 import com.ymmo.ymmoapi.dto.UserCreationDto;
 import com.ymmo.ymmoapi.exception.ResourceNotFoundException;
 import com.ymmo.ymmoapi.exception.ResponseException;
 import com.ymmo.ymmoapi.model.Users;
 import com.ymmo.ymmoapi.repository.UsersRepository;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -66,6 +68,28 @@ public class UserService {
                     return ResponseEntity.ok(user);
                 })
                 .orElse(ResponseEntity.noContent().build()).getBody();
+    }
+
+    public Users myUserInfo(String email) {
+        return usersRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("No user found with the email " + email));
+    }
+
+    public Users updateMyUser(String email, MyUserModificationDto dto) {
+        Users user = myUserInfo(email);
+
+        if (dto.getEmail() != null) user.setEmail(dto.getEmail());
+        if (dto.getName() != null) user.setName(dto.getName());
+        if (dto.getSurname() != null) user.setLastname(dto.getSurname());
+
+        if (dto.getUnhashedPassword() != null && isPasswordCorrect(dto.getUnhashedPassword())) {
+            if (!passwordService.verifyPassword(dto.getOldPassword(), user.getPassword())) {
+                throw new BadCredentialsException("Incorrect current password");
+            }
+            user.setPassword(passwordService.hashPassword(dto.getUnhashedPassword()));
+        }
+
+        return usersRepository.save(user);
     }
 
     public boolean isEmailCorrect(String email) {
