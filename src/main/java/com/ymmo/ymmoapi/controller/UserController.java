@@ -1,16 +1,21 @@
 package com.ymmo.ymmoapi.controller;
 
+import com.ymmo.ymmoapi.dto.MyUserModificationDto;
 import com.ymmo.ymmoapi.dto.UserCreationDto;
 import com.ymmo.ymmoapi.exception.ResponseException;
 import com.ymmo.ymmoapi.model.Users;
 import com.ymmo.ymmoapi.repository.UsersRepository;
 import com.ymmo.ymmoapi.service.PasswordService;
 import com.ymmo.ymmoapi.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api")
@@ -65,6 +70,32 @@ public class UserController {
             return ResponseEntity.ok(userService.deleteUser(id));
         } catch (ResponseException e) {
             return ResponseEntity.status(e.getHttpCode()).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/users/me")
+    public ResponseEntity<?> myUserInfo() {
+        try {
+            String email = Objects.requireNonNull(SecurityContextHolder.getContext()
+                            .getAuthentication())
+                    .getName();
+            return ResponseEntity.ok(userService.myUserInfo(email));
+        } catch (ResponseException e) {
+            return ResponseEntity.status(e.getHttpCode()).body(e.getMessage());
+        }
+    }
+
+    @PatchMapping("/users/me")
+    public ResponseEntity<?> updateMyUser(@RequestBody MyUserModificationDto myUserModificationDto) {
+        try {
+            String email = Objects.requireNonNull(SecurityContextHolder.getContext()
+                            .getAuthentication())
+                    .getName();
+            return ResponseEntity.ok(userService.updateMyUser(email, myUserModificationDto));
+        } catch (ResponseException e) {
+            return ResponseEntity.status(e.getHttpCode()).body(e.getMessage());
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
 }
