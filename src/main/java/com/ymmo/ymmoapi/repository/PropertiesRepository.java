@@ -16,8 +16,8 @@ public interface PropertiesRepository extends JpaRepository<Properties, Integer>
     boolean existsPropertiesById(int id);
 
     @Query("SELECT p FROM properties p WHERE " +
-            "p.name LIKE %:query% OR " +
-            "p.city LIKE %:query% OR " +
-            "p.area LIKE %:query%")
+            "LOWER(p.name) LIKE %:query% OR " +
+            "LOWER(p.city) LIKE %:query% OR " +
+            "LOWER(p.area) LIKE %:query%")
     Optional<List<Properties>> searchAllFields(@Param("query") String query);
 }
