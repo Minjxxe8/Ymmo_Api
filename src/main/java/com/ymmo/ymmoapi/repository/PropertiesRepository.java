@@ -2,8 +2,11 @@ package com.ymmo.ymmoapi.repository;
 
 import com.ymmo.ymmoapi.model.Properties;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -12,5 +15,9 @@ public interface PropertiesRepository extends JpaRepository<Properties, Integer>
 
     boolean existsPropertiesById(int id);
 
-    Optional<Properties> getByName(String name);
+    @Query("SELECT p FROM properties p WHERE " +
+            "p.name LIKE %:query% OR " +
+            "p.city LIKE %:query% OR " +
+            "p.area LIKE %:query%")
+    Optional<List<Properties>> searchAllFields(@Param("query") String query);
 }
