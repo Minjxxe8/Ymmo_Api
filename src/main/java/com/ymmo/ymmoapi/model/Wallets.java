@@ -49,4 +49,8 @@ public class Wallets {
         }
         this.balance -= balance;
     }
+
+    public boolean enoughBalance(double balance) {
+        return this.balance - balance > 0;
+    }
 }
