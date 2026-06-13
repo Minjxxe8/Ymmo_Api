@@ -83,7 +83,7 @@ public class UserController {
             String email = Objects.requireNonNull(SecurityContextHolder.getContext()
                             .getAuthentication())
                     .getName();
-            return ResponseEntity.ok(userService.myUserInfo(email));
+            return ResponseEntity.ok(userService.getUserByEmail(email));
         } catch (ResponseException e) {
             return ResponseEntity.status(e.getHttpCode()).body(e.getMessage());
         }

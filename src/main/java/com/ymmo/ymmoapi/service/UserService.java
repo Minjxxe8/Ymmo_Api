@@ -36,7 +36,8 @@ public class UserService {
     }
 
     public Users getUserByEmail(String email) throws ResponseException {
-        return usersRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+        return usersRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
     }
 
     public Users createUser(UserCreationDto user) throws ResponseException {
@@ -78,13 +79,8 @@ public class UserService {
                 .orElse(ResponseEntity.noContent().build()).getBody();
     }
 
-    public Users myUserInfo(String email) {
-        return usersRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("No user found with the email " + email));
-    }
-
     public Users updateMyUser(String email, MyUserModificationDto dto) {
-        Users user = myUserInfo(email);
+        Users user = getUserByEmail(email);
 
         if (dto.getEmail() != null) user.setEmail(dto.getEmail());
         if (dto.getName() != null) user.setName(dto.getName());
