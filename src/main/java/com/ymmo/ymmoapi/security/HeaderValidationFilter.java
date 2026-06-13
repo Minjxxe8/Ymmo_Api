@@ -25,6 +25,10 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
             "/api/auth/register",
             "/api/auth/login",
             "/api/auth/refresh",
+            "/swagger-ui/index.html",
+            "/swagger-ui.html",
+            "/v3/api-docs",
+            "/api-docs",
             "/"
     );
 
@@ -35,7 +39,12 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return PUBLIC_ROUTES.contains(request.getRequestURI());
+        String uri = request.getRequestURI();
+        if (PUBLIC_ROUTES.contains(uri)) {
+            return true;
+        }
+        return uri.startsWith("/swagger-ui/") || uri.startsWith("/swagger-resources/") ||
+                uri.startsWith("/v3/api-docs") || uri.startsWith("/webjars/");
     }
 
     @Override
