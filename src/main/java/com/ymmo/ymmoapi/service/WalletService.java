@@ -2,7 +2,6 @@ package com.ymmo.ymmoapi.service;
 
 import com.ymmo.ymmoapi.dto.WalletsDto;
 import com.ymmo.ymmoapi.exception.ResourceNotFoundException;
-import com.ymmo.ymmoapi.exception.ResponseException;
 import com.ymmo.ymmoapi.model.Users;
 import com.ymmo.ymmoapi.model.Wallets;
 import com.ymmo.ymmoapi.repository.UsersRepository;
@@ -19,12 +18,12 @@ public class WalletService {
         this.usersRepository = usersRepository;
     }
 
-    public WalletsDto.WalletResponse createWallet(Users user) {
+    public void createWallet(Users user) {
         Wallets newWallet = walletRepository.save(new Wallets(
                 user,
                 0
         ));
-        return new WalletsDto.WalletResponse(newWallet.getId(), newWallet.getBalance());
+        new WalletsDto.WalletResponse(newWallet.getId(), newWallet.getBalance());
     }
 
     public WalletsDto.WalletResponse getUserWallet(String email) {
@@ -46,7 +45,13 @@ public class WalletService {
         return new WalletsDto.WalletResponse(newValue.getId(), newValue.getBalance());
     }
 
-    private Wallets getUserWalletByEmail(String email) {
+    public void removeBalance(Wallets userWaller, double balance) {
+        userWaller.removeBalance(balance);
+        Wallets newValue = walletRepository.save(userWaller);
+        new WalletsDto.WalletResponse(newValue.getId(), newValue.getBalance());
+    }
+
+    public Wallets getUserWalletByEmail(String email) {
         return walletRepository.findByUser(
                 usersRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found with the email : " + email))
         );
