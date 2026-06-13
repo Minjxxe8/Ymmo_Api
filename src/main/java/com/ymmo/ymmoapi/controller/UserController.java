@@ -2,11 +2,13 @@ package com.ymmo.ymmoapi.controller;
 
 import com.ymmo.ymmoapi.dto.MyUserModificationDto;
 import com.ymmo.ymmoapi.dto.UserCreationDto;
+import com.ymmo.ymmoapi.dto.WalletsDto;
 import com.ymmo.ymmoapi.exception.ResponseException;
 import com.ymmo.ymmoapi.model.Users;
 import com.ymmo.ymmoapi.repository.UsersRepository;
 import com.ymmo.ymmoapi.service.PasswordService;
 import com.ymmo.ymmoapi.service.UserService;
+import com.ymmo.ymmoapi.service.WalletService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,9 +25,11 @@ import java.util.Objects;
 public class UserController {
 
     private final UserService userService;
+    private final WalletService walletService;
 
-    public UserController(UsersRepository usersRepository, PasswordService passwordService) {
-        this.userService = new UserService(usersRepository, passwordService);
+    public UserController(UsersRepository usersRepository, PasswordService passwordService, WalletService walletService) {
+        this.userService = new UserService(usersRepository, passwordService, walletService);
+        this.walletService = walletService;
     }
 
     @GetMapping("/users")
@@ -96,6 +100,42 @@ public class UserController {
             return ResponseEntity.status(e.getHttpCode()).body(e.getMessage());
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/users/me/wallet")
+    public ResponseEntity<?> getMyWallet() {
+        try {
+            String email = Objects.requireNonNull(SecurityContextHolder.getContext()
+                            .getAuthentication())
+                    .getName();
+            return ResponseEntity.ok(walletService.getUserWallet(email));
+        } catch (ResponseException e) {
+            return ResponseEntity.status(e.getHttpCode()).body(e.getMessage());
+        }
+    }
+
+    @PatchMapping("/users/me/wallet/deposit")
+    public ResponseEntity<?> addBalanceToMyWallet(@RequestBody WalletsDto.WalletModificationBalance walletModificationBalance) {
+        try {
+            String email = Objects.requireNonNull(SecurityContextHolder.getContext()
+                            .getAuthentication())
+                    .getName();
+            return ResponseEntity.ok(walletService.addBalance(email, walletModificationBalance.balance()));
+        } catch (ResponseException e) {
+            return ResponseEntity.status(e.getHttpCode()).body(e.getMessage());
+        }
+    }
+
+    @PatchMapping("/users/me/wallet/withdraw")
+    public ResponseEntity<?> removeBalanceToMyWallet(@RequestBody WalletsDto.WalletModificationBalance walletModificationBalance) {
+        try {
+            String email = Objects.requireNonNull(SecurityContextHolder.getContext()
+                            .getAuthentication())
+                    .getName();
+            return ResponseEntity.ok(walletService.removeBalance(email, walletModificationBalance.balance()));
+        } catch (ResponseException e) {
+            return ResponseEntity.status(e.getHttpCode()).body(e.getMessage());
         }
     }
 }
