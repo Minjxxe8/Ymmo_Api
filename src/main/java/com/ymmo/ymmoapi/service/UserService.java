@@ -17,10 +17,12 @@ import java.util.regex.Pattern;
 public class UserService {
     private final UsersRepository usersRepository;
     private final PasswordService passwordService;
+    private final WalletService walletService;
 
-    public UserService(UsersRepository usersRepository, PasswordService passwordService) {
+    public UserService(UsersRepository usersRepository, PasswordService passwordService, WalletService walletService) {
         this.usersRepository = usersRepository;
         this.passwordService = passwordService;
+        this.walletService = walletService;
     }
 
     public List<Users> getAllUsers() {
@@ -37,12 +39,14 @@ public class UserService {
         if (usersRepository.existsUsersByEmail(user.getEmail())) {
             throw new ResponseException("User already exists", 409);
         }
-        return usersRepository.save(new Users(
+        Users newUser = usersRepository.save(new Users(
                 user.getEmail(),
                 user.getName(),
                 user.getSurname(),
                 passwordService.hashPassword(user.getUnhashedPassword()),
                 "user"));
+        walletService.createWallet(newUser);
+        return newUser;
     }
 
     public Users updateUser(Long id, Users user) throws ResponseException {
