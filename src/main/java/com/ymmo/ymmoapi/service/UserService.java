@@ -35,6 +35,10 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id)).getBody();
     }
 
+    public Users getUserByEmail(String email) throws ResponseException {
+        return usersRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+    }
+
     public Users createUser(UserCreationDto user) throws ResponseException {
         if (usersRepository.existsUsersByEmail(user.getEmail())) {
             throw new ResponseException("User already exists", 409);
