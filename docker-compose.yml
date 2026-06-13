@@ -20,6 +20,7 @@ services:
     restart: unless-stopped
     networks:
       - db_network
+
   ymmo-api:
     env_file:
       - .env
@@ -34,21 +35,46 @@ services:
       JWT_ACCESS_SECRET_KEY: ${JWT_ACCESS_SECRET_KEY}
       JWT_REFRESH_EXPIRATION: ${JWT_REFRESH_EXPIRATION}
       JWT_ACCESS_EXPIRATION: ${JWT_ACCESS_EXPIRATION}
+      S3_ENDPOINT: http://ymmo-rustfs:9000
+      S3_ACCESSKEY: ${S3_ACCESS_USER_KEY}
+      S3_SECRETKEY: ${S3_SECRET_USER_KEY}
     depends_on:
       ymmo-db:
         condition: service_healthy
+      ymmo-rustfs:
+        condition: service_started
     restart: unless-stopped
     networks:
       - db_network
+      - storage_network
+
+  ymmo-rustfs:
+    env_file:
+      - .env
+    image: rustfs/rustfs
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      RUSTFS_ROOT_USER: ${RUSTFS_ROOT_USER}
+      RUSTFS_ROOT_PASSWORD: ${RUSTFS_ROOT_PASSWORD}
+    volumes:
+      - rustfs_data:/data
+    restart: unless-stopped
+    networks:
+      - storage_network
+
   ymmo-pgadmin:
     env_file:
       - .env
-    image: dpage/pgadmin4:latest
+    image: dpage/pgadmin4:9.15.0
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
     ports:
       - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
     depends_on:
       ymmo-db:
         condition: service_healthy
@@ -60,7 +86,11 @@ services:
 
 volumes:
   postgres_data:
+  rustfs_data:
+  pgadmin_data:
 
 networks:
   db_network:
+    driver: bridge
+  storage_network:
     driver: bridge
