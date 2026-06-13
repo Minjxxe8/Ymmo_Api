@@ -59,8 +59,20 @@ public class UserController {
         }
     }
 
+    @PatchMapping("/{id}/role")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<?> modifyUserRole(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(userService.changeUserRole(id));
+        } catch (ResponseException e) {
+            return ResponseEntity.status(e.getHttpCode()).body(e.getMessage());
+        }
+    }
+
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('admin')")
+
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(userService.deleteUser(id));
