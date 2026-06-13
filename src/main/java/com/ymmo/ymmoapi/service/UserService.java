@@ -11,6 +11,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 @Service
@@ -94,6 +95,21 @@ public class UserService {
         }
 
         return usersRepository.save(user);
+    }
+
+    public Users changeUserRole(Long id) {
+        Users user = getUserById(id);
+        if (!user.getRole().equals("admin")) {
+
+
+            if (Objects.equals(user.getRole(), "user")) {
+                user.setRole("agent");
+                return usersRepository.save(user);
+            }
+            user.setRole("user");
+            return usersRepository.save(user);
+        }
+        throw new ResponseException("You cannot change an admin's role", 400);
     }
 
     public boolean isEmailCorrect(String email) {
