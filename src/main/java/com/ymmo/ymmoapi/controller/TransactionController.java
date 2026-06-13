@@ -5,7 +5,10 @@ import com.ymmo.ymmoapi.exception.ResourceNotFoundException;
 import com.ymmo.ymmoapi.exception.ResponseException;
 import com.ymmo.ymmoapi.service.TransactionService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Objects;
 
 // TODO: Change the return data to DTO
 @RestController
@@ -48,7 +51,10 @@ public class TransactionController {
     @PostMapping("/transactions")
     public ResponseEntity<?> createTransaction(@RequestBody TransactionCreationDto transactionCreationDto) {
         try {
-            return ResponseEntity.ok(transactionService.createTransaction(transactionCreationDto));
+            String email = Objects.requireNonNull(SecurityContextHolder.getContext()
+                            .getAuthentication())
+                    .getName();
+            return ResponseEntity.ok(transactionService.createTransaction(email, transactionCreationDto));
         } catch (ResponseException e) {
             return ResponseEntity.status(e.getHttpCode()).body(e.getMessage());
         }
