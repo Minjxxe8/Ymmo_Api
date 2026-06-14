@@ -1,18 +1,24 @@
 package com.ymmo.ymmoapi.service;
 
 import com.ymmo.ymmoapi.dto.PropertyCreationDto;
+import com.ymmo.ymmoapi.dto.PropertyResponseDto;
 import com.ymmo.ymmoapi.exception.ResourceNotFoundException;
 import com.ymmo.ymmoapi.exception.ResponseException;
 import com.ymmo.ymmoapi.model.Properties;
 import com.ymmo.ymmoapi.model.PropertiesBuilder;
+import com.ymmo.ymmoapi.model.PropertyPicture;
 import com.ymmo.ymmoapi.model.PropertyTypes;
 import com.ymmo.ymmoapi.repository.PropertiesRepository;
+import com.ymmo.ymmoapi.repository.PropertyPictureRepository;
 import com.ymmo.ymmoapi.repository.PropertyTypesRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -21,33 +27,71 @@ import java.util.stream.Collectors;
 public class PropertyService {
     private final PropertiesRepository propertiesRepository;
     private final PropertyTypesRepository propertyTypesRepository;
+    private final S3Service s3Service;
+    private final PropertyPictureRepository propertyPictureRepository;
 
     @Autowired
-    public PropertyService(PropertiesRepository propertiesRepository, PropertyTypesRepository propertyTypesRepository) {
+    public PropertyService(PropertiesRepository propertiesRepository, PropertyTypesRepository propertyTypesRepository, S3Service s3Service, PropertyPictureRepository propertyPictureRepository) {
         this.propertiesRepository = propertiesRepository;
         this.propertyTypesRepository = propertyTypesRepository;
+        this.s3Service = s3Service;
+        this.propertyPictureRepository = propertyPictureRepository;
     }
 
-    public List<Properties> getAllProperties() throws ResourceNotFoundException {
+    public List<PropertyResponseDto.PropertyPartialPictureResponse> getAllProperties() throws ResourceNotFoundException {
         List<Properties> propertiesList = propertiesRepository.findAll();
+        List<PropertyResponseDto.PropertyPartialPictureResponse> propertyPartialPictureResponses = propertiesList
+                .stream().map(p -> new PropertyResponseDto.PropertyPartialPictureResponse(
+                        p.getId(),
+                        p.getName(),
+                        p.getType(),
+                        p.getPrice(),
+                        p.getSurfaceArea(),
+                        p.getRoomCount(),
+                        p.getDiagnostic(),
+                        p.getCountry(),
+                        p.getCity(),
+                        p.getArea(),
+                        p.isOnSale(),
+                        getFirstPropertyPicture(p)
+                )).toList();
         if (propertiesList.isEmpty()) {
             throw new ResourceNotFoundException("No properties have been created");
         }
-        return propertiesList;
+        return propertyPartialPictureResponses;
     }
 
-    public Properties getPropertyById(int id) throws ResourceNotFoundException {
+    public Properties getPropertyById(int id) {
         return propertiesRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new ResourceNotFoundException("Property with the id " + id + " has not been found"))
                 .getBody();
     }
 
+    public PropertyResponseDto.PropertyFullPictureResponse getPropertyResponseById(int id) throws ResourceNotFoundException {
+        return propertiesRepository.findById(id)
+                .map(p -> new PropertyResponseDto.PropertyFullPictureResponse(
+                        p.getId(),
+                        p.getName(),
+                        p.getType(),
+                        p.getPrice(),
+                        p.getSurfaceArea(),
+                        p.getRoomCount(),
+                        p.getDiagnostic(),
+                        p.getCountry(),
+                        p.getCity(),
+                        p.getArea(),
+                        p.isOnSale(),
+                        getAllPropertyPictures(p)
+                ))
+                .orElseThrow(() -> new ResourceNotFoundException("Property with the id " + id + " has not been found"));
+    }
+
     public Properties createProperty(PropertyCreationDto property) throws ResponseException {
         try {
             return propertiesRepository.save(new PropertiesBuilder()
                     .name(property.getName())
-                    .typeId(property.getTypeId())
+                    .type(propertyTypesRepository.getReferenceById(property.getTypeId()))
                     .price(property.getPrice())
                     .surfaceArea(property.getSurfaceArea())
                     .roomCount(property.getRoomCount())
@@ -62,6 +106,35 @@ public class PropertyService {
         }
     }
 
+    public void postPropertyPictures(int property_id, List<MultipartFile> pictures) {
+        try {
+            for (MultipartFile picture : pictures) {
+                String path = s3Service.uploadFile(picture);
+                propertyPictureRepository.save(new PropertyPicture(
+                        path,
+                        propertiesRepository.getReferenceById(property_id)
+                ));
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    @Transactional
+    public void deletePicture(int id, String path) throws IOException {
+        propertyPictureRepository.deleteByPropertyAndPath(propertiesRepository.getReferenceById(id), path);
+        s3Service.deleteFile(path);
+    }
+
+    public List<String> getAllPropertyPictures(Properties property) {
+        return propertyPictureRepository.getAllPathsByProperty(property);
+    }
+
+    public String getFirstPropertyPicture(Properties property) {
+        return propertyPictureRepository.getFirstByProperty(property);
+    }
+
     public Properties updateProperty(int id, PropertyCreationDto property) throws ResourceNotFoundException {
         return propertiesRepository.findById(id).map(existingProperty ->
         {
@@ -69,7 +142,8 @@ public class PropertyService {
                 existingProperty.setName(property.getName());
             }
             if (property.getTypeId() != null) {
-                existingProperty.setTypeId(property.getTypeId());
+                existingProperty.setType(propertyTypesRepository.findById(property.getTypeId())
+                        .orElseThrow(() -> new ResourceNotFoundException("No Property types have been found with the id: " + property.getTypeId())));
             }
             if (property.getPrice() != null) {
                 existingProperty.setPrice(property.getPrice());
