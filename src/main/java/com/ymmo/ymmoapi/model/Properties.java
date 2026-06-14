@@ -14,8 +14,9 @@ public class Properties {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "type_id")
-    private Integer typeId;
+    @OneToOne
+    @JoinColumn(name = "type_id")
+    private PropertyTypes type;
 
     @Column(name = "price")
     private Double price;
@@ -56,8 +57,8 @@ public class Properties {
         return name;
     }
 
-    public Integer getTypeId() {
-        return typeId;
+    public PropertyTypes getType() {
+        return type;
     }
 
     public Double getPrice() {
@@ -100,8 +101,8 @@ public class Properties {
         this.name = name;
     }
 
-    public void setTypeId(Integer typeId) {
-        this.typeId = typeId;
+    public void setType(PropertyTypes type) {
+        this.type = type;
     }
 
     public void setPrice(Double price) {
@@ -136,9 +137,9 @@ public class Properties {
         this.onSale = onSale;
     }
 
-    public Properties(String name, Integer typeId, Double price, Double surfaceArea, Integer roomCount, String diagnostic, String country, String city, String area, Boolean onSale) {
+    public Properties(String name, PropertyTypes type, Double price, Double surfaceArea, Integer roomCount, String diagnostic, String country, String city, String area, Boolean onSale) {
         this.name = name;
-        this.typeId = typeId;
+        this.type = type;
         this.price = price;
         this.surfaceArea = surfaceArea;
         this.roomCount = roomCount;
