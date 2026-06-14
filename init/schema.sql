@@ -71,4 +71,13 @@ CREATE TABLE favorites
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     FOREIGN KEY (property_id) REFERENCES properties (id) ON DELETE CASCADE
-)
+);
+
+CREATE TABLE property_picture
+(
+    id          SERIAL PRIMARY KEY,
+    path        VARCHAR(255),
+    property_id INTEGER,
+    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (property_id) REFERENCES properties (id) ON DELETE CASCADE
+);
