@@ -1,7 +1,5 @@
 package com.ymmo.ymmoapi.dto;
 
-import jakarta.persistence.Column;
-
 public class PropertyCreationDto {
 
     private String name;
