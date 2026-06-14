@@ -3,7 +3,7 @@ package com.ymmo.ymmoapi.model;
 public class PropertiesBuilder {
 
     private String name;
-    private Integer typeId;
+    private PropertyTypes type;
     private Double price;
     private Double surfaceArea;
     private Integer roomCount;
@@ -18,8 +18,8 @@ public class PropertiesBuilder {
         return this;
     }
 
-    public PropertiesBuilder typeId(Integer typeId) {
-        this.typeId = typeId;
+    public PropertiesBuilder type(PropertyTypes type) {
+        this.type = type;
         return this;
     }
 
@@ -66,7 +66,7 @@ public class PropertiesBuilder {
     public Properties build() {
         Properties properties = new Properties();
         properties.setName(name);
-        properties.setTypeId(typeId);
+        properties.setType(type);
         properties.setPrice(price);
         properties.setSurfaceArea(surfaceArea);
         properties.setRoomCount(roomCount);
