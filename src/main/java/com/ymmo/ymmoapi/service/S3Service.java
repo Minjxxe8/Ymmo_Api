@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
@@ -15,7 +16,7 @@ import java.util.UUID;
 public class S3Service {
     private final S3Client s3Client;
     private final String bucketName;
-    private final String endpoint;
+    private final String port;
 
     @Autowired
     public S3Service(
@@ -24,7 +25,7 @@ public class S3Service {
             @Value("${s3.endpoint}") String endpoint) {
         this.s3Client = s3Client;
         this.bucketName = bucketName;
-        this.endpoint = endpoint;
+        this.port = endpoint.substring(endpoint.lastIndexOf(':'));
     }
 
 
@@ -38,6 +39,11 @@ public class S3Service {
                         .build(),
                 RequestBody.fromBytes(file.getBytes()));
 
-        return endpoint + "/" + bucketName + "/" + key;
+        return "http://localhost" + port + "/" + bucketName + "/" + key;
+    }
+
+    public void deleteFile(String path) throws IOException {
+        String key = path.substring(path.lastIndexOf('/')+1);
+        s3Client.deleteObject(DeleteObjectRequest.builder().bucket(bucketName).key(key).build());
     }
 }
