@@ -14,7 +14,7 @@ public class Properties {
     @Column(name = "name")
     private String name;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "type_id")
     private PropertyTypes type;
 

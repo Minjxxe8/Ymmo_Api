@@ -110,7 +110,7 @@ public class Users implements UserDetails {
     }
 
     public String getName() {
-        return name + " " + lastname;
+        return name;
     }
 
     public void setPassword(String password) {

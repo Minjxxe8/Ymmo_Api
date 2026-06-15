@@ -43,13 +43,13 @@ public class UserFavoriteController {
         }
     }
 
-    @DeleteMapping("/me/favorites")
-    public ResponseEntity<?> deleteToMyFavorites(@RequestBody FavoritesDto.Favorite favorite) {
+    @DeleteMapping("/me/favorites/{id}")
+    public ResponseEntity<?> deleteToMyFavorites(@PathVariable int id) {
         try {
             String email = Objects.requireNonNull(SecurityContextHolder.getContext()
                             .getAuthentication())
                     .getName();
-            favoriteService.deleteUserFavorite(email, favorite.id());
+            favoriteService.deleteUserFavorite(email, id);
             return ResponseEntity.ok("Favorite deleted");
         } catch (ResponseException e) {
             return ResponseEntity.status(e.getHttpCode()).body(e.getMessage());
