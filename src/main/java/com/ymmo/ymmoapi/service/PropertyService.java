@@ -91,7 +91,8 @@ public class PropertyService {
         try {
             return propertiesRepository.save(new PropertiesBuilder()
                     .name(property.getName())
-                    .type(propertyTypesRepository.getReferenceById(property.getTypeId()))
+                    .type(propertyTypesRepository.findById(property.getTypeId())
+                            .orElseThrow(() -> new ResourceNotFoundException("Property type not found with the id : " + property.getTypeId())))
                     .price(property.getPrice())
                     .surfaceArea(property.getSurfaceArea())
                     .roomCount(property.getRoomCount())
