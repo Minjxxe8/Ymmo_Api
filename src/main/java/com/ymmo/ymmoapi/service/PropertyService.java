@@ -196,7 +196,7 @@ public class PropertyService {
         }).orElseThrow(() -> new ResourceNotFoundException("No property have been found with the id " + id));
     }
 
-    public Set<Properties> search(String query, Integer minPrice, Integer maxPrice) {
+    public List<PropertyResponseDto.PropertyPartialPictureResponse> search(String query, Integer minPrice, Integer maxPrice) throws ResourceNotFoundException {
         Set<Properties> result = new HashSet<>();
 
         propertiesRepository.searchAllFields(query.strip().toLowerCase()).ifPresent(result::addAll);
@@ -218,6 +218,24 @@ public class PropertyService {
         if (result.isEmpty()) {
             throw new ResourceNotFoundException("No properties have been found");
         }
-        return result;
+
+        List<PropertyResponseDto.PropertyPartialPictureResponse> propertyPartialPictureResponses = result
+                .stream()
+                .map(p -> new PropertyResponseDto.PropertyPartialPictureResponse(
+                        p.getId(),
+                        p.getName(),
+                        p.getType(),
+                        p.getPrice(),
+                        p.getSurfaceArea(),
+                        p.getRoomCount(),
+                        p.getDiagnostic(),
+                        p.getCountry(),
+                        p.getCity(),
+                        p.getArea(),
+                        p.isOnSale(),
+                        getFirstPropertyPicture(p)
+                )).collect(Collectors.toList());
+
+        return propertyPartialPictureResponses;
     }
 }
